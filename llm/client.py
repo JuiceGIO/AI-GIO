@@ -1,11 +1,13 @@
-"""大模型调用封装（Day3：流式 + 超时 + 重试 + 日志）"""
+"""大模型调用封装（Day3：流式 + 超时 + 重试 + 日志；Day4：支持多轮消息）"""
 import os
 import time
+from pathlib import Path
 
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+# .env 固定放在项目根目录（llm/client.py 的上级目录），从任何位置启动都能找到
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
@@ -17,11 +19,8 @@ client = OpenAI(
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 
-def chat(system: str, user: str, stream: bool = True) -> str:
-    messages = [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]
+def chat_messages(messages: list, stream: bool = False) -> str:
+    """按完整消息列表调用模型（Day4 ReAct 循环用，能带工具观察结果）"""
 
     start = time.perf_counter()  # 计时开始
 
@@ -54,6 +53,14 @@ def chat(system: str, user: str, stream: bool = True) -> str:
 
     _log(start)
     return full_text
+
+
+def chat(system: str, user: str, stream: bool = True) -> str:
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+    return chat_messages(messages, stream=stream)
 
 
 def _log(start: float, tokens: int = None):
