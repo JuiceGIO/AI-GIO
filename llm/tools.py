@@ -12,12 +12,24 @@ def get_time(timezone: str = "Asia/Shanghai") -> str:
     now = datetime.now(tz)
     return f"{now.strftime('%Y-%m-%d %H:%M:%S')}（{timezone if tz else '本地时间'}）"
 
+def add(a, b) -> str:
+    """两个数字相加，支持整数和小数"""
+    try:
+        x, y = float(a), float(b)
+    except (TypeError, ValueError):
+        raise ValueError(f"参数必须是数字，收到 a={a!r}, b={b!r}")
+    result = x + y
+    return str(int(result)) if result.is_integer() else str(result)
 
 # 工具注册表：名字 -> 实现函数 + 给模型看的说明
 TOOLS = {
     "get_time": {
         "function": get_time,
         "description": "获取当前日期时间。可选参数 timezone（时区名，默认 Asia/Shanghai）。",
+    },
+    "add": {
+        "function": add,
+        "description": "两个数字相加。参数 a、b：要相加的数字（整数或小数）。",
     },
 }
 

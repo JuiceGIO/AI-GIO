@@ -4,7 +4,7 @@ import json
 import re
 
 from llm.client import chat_messages
-from llm.tools import execute_tool, tool_list_text
+from llm.tools import execute_tool, get_time, tool_list_text
 
 SYSTEM_PROMPT = f"""你是一个会使用工具的 AI 助手，可以回答用户问题。
 
@@ -27,11 +27,36 @@ SYSTEM_PROMPT = f"""你是一个会使用工具的 AI 助手，可以回答用�
 1. 行动只能从工具列表中选择。
 2. 行动输入必须是合法 JSON。
 3. 一次只输出一个「思考 / 行动 / 行动输入」，或直接输出「回答」。
+4. 当前日期时间是动态信息，你的训练数据里没有真实时间；只要问题涉及时间/日期/年份，
+   必须先调用 get_time 获取，禁止根据训练知识猜测或编造年份。
+5. 如果「观察」里出现「工具执行出错」，先修正参数重试一次；仍失败就如实告诉用户。
+
+示例（「观察」由程序返回，你不需要输出观察）：
+
+用户: 现在几点了？
+思考: 我不知道当前时间，必须调用工具。
+行动: get_time
+行动输入: {{}}
+
+用户: 12345 + 67890 等于多少？
+思考: 大数加法必须用工具确保准确。
+行动: add
+行动输入: {{"a": 12345, "b": 67890}}
 """
 
 ANSWER_RE = re.compile(r"回答[:：]\s*(.+)$", re.S)
 ACTION_RE = re.compile(r"行动[:：]\s*([A-Za-z_][A-Za-z0-9_]*)")
 ARGS_RE = re.compile(r"行动输入[:：]\s*(.*?)(?=\n\s*(?:思考|行动|回答)[:：]|\Z)", re.S)
+
+TIME_KEYWORDS = (
+    "几点", "时间", "日期", "几号", "年份", "现在几", "几点几分",
+    "now", "time", "date", "current time", "what time",
+)
+
+
+def _mentions_time(text: str) -> bool:
+    low = text.lower()
+    return any(k in low for k in TIME_KEYWORDS)
 
 
 def parse_args(text: str):
@@ -74,12 +99,13 @@ def parse_action(reply: str):
     return None, None, reply.strip()
 
 
-def run_agent(user_message: str, max_steps: int = 3, verbose: bool = True):
+def run_agent(user_message: str, max_steps: int = 5, verbose: bool = True):
     """跑 ReAct 循环，返回 (最终答案, 用了几步)"""
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": user_message},
     ]
+    time_attempted = False 
 
     for step in range(1, max_steps + 1):
         if verbose:
@@ -89,9 +115,23 @@ def run_agent(user_message: str, max_steps: int = 3, verbose: bool = True):
 
         tool_name, args, final = parse_action(reply)
         if final is not None:
+            # 兜底：问题涉及时间，但模型全程没调 get_time（防止它凭记忆编年份）
+            if _mentions_time(user_message) and not time_attempted:
+                observation = (
+                    f"观察: 问题涉及时间，程序已自动调用 get_time：{get_time()}。"
+                    "若用户要求的是其他时区，请如实告知暂不支持。"
+                )
+                time_attempted = True
+                if verbose:
+                    print(f"[step {step}] 程序兜底 {observation}")
+                messages.append({"role": "user", "content": observation})
+                continue
             if verbose:
                 print(f"[step {step}] 得到最终回答")
             return final, step
+
+        if tool_name == "get_time":
+            time_attempted = True
 
         result, error = execute_tool(tool_name, args)
         if error:
