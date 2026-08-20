@@ -1,7 +1,7 @@
 """工具注册表（Day4：第一个工具 get_time）"""
 from datetime import datetime
 from zoneinfo import ZoneInfo
-
+from app.business_tools import ask_policy, evaluate_expense, query_expenses
 
 def get_time(timezone: str = "Asia/Shanghai") -> str:
     """返回当前日期时间；时区不可用时退回系统本地时间"""
@@ -30,6 +30,27 @@ TOOLS = {
     "add": {
         "function": add,
         "description": "两个数字相加。参数 a、b：要相加的数字（整数或小数）。",
+    },
+    "evaluate_expense": {
+        "function": evaluate_expense,
+        "description": (
+            "校验一笔报销是否超出差旅标准。参数：type（交通/住宿/餐饮）、"
+            "amount（金额数字）、city（城市名）。返回是否超标及超出金额。"
+        ),
+    },
+    "query_expenses": {
+        "function": query_expenses,
+        "description": (
+            "查询报销单。参数可选：type（交通/住宿/餐饮）、"
+            "month（月份，格式 YYYY-MM，如 2026-07）。返回笔数和总额。"
+        ),
+    },
+    "ask_policy": {
+        "function": ask_policy,
+        "description": (
+            "回答企业差旅制度问题（住宿标准、交通标准、餐补、报销时限等），"
+            "参数：question（制度问题文本）。"
+        ),
     },
 }
 
