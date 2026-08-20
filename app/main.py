@@ -2,6 +2,7 @@
 import datetime
 from pathlib import Path
 from typing import Literal
+from rules.travel_rules import check_expense
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -48,8 +49,10 @@ def chat_endpoint(req: ChatRequest):
 @app.post("/expense_forms", status_code=201)
 def create_expense_form(req: ExpenseFormRequest):
     """创建报销单；发票号重复返回 409"""
+    data = req.model_dump(mode="json")
+    data["check"] = check_expense(data)  # 超标自动标记并提示
     try:
-        form = create_form(req.model_dump(mode="json"))
+        form = create_form(data)
     except DuplicateInvoiceError as e:
         raise HTTPException(status_code=409, detail=f"发票号 {e} 已存在，不能重复提交")
     return form
