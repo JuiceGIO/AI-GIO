@@ -2,7 +2,9 @@
 import json
 import sys
 from pathlib import Path
+from datetime import datetime
 
+from db import get_conn, init_db
 from llm.client import chat
 
 SYSTEM_PROMPT = """你是一个发票信息抽取器。用户会给你一张电子发票的文本内容，请抽取以下字段并只输出 JSON：
@@ -38,20 +40,34 @@ def extract_fields(text: str) -> dict:
     return _parse_json(reply)
 
 
-def run(pdf_path: str, out_dir: str = "data/invoices") -> dict:
-    """完整流程：PDF -> 文本 -> 字段 -> 存 JSON 文件"""
+def run(pdf_path: str) -> dict:
+    """完整流程：PDF -> 文本 -> 字段 -> 存 SQLite（Day12 替换文件存储）"""
     from invoice.pdf_reader import extract_text
 
     text = extract_text(pdf_path)
     fields = extract_fields(text)
 
-    out = Path(out_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    out_file = out / (Path(pdf_path).stem + ".json")
-    out_file.write_text(
-        json.dumps(fields, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    print(f"[已保存] {out_file}")
+    init_db()
+    conn = get_conn()
+    try:
+        conn.execute(
+            """INSERT OR REPLACE INTO invoices
+               (invoice_no, amount, date, buyer, category, file_name, extracted_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                fields["invoice_no"],
+                fields["amount"],
+                fields["date"],
+                fields["buyer"],
+                fields["category"],
+                Path(pdf_path).name,
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    print(f"[已入库] 发票号 {fields['invoice_no']}")
     return fields
 
 

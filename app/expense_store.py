@@ -1,43 +1,70 @@
-"""报销单存储层（Day9：先用 JSON 文件，Day12 换数据库）"""
+"""报销单存储层（Day12：换成 SQLite；接口层无需改动）"""
 import json
+import sqlite3
 from datetime import datetime
-from pathlib import Path
 
-DATA_FILE = Path(__file__).resolve().parents[1] / "data" / "expense_forms.json"
+from db import get_conn
 
 
 class DuplicateInvoiceError(Exception):
     """发票号重复"""
 
 
-def _load() -> list:
-    if not DATA_FILE.exists():
-        return []
-    return json.loads(DATA_FILE.read_text(encoding="utf-8"))
-
-
-def _save(forms: list) -> None:
-    DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-    DATA_FILE.write_text(
-        json.dumps(forms, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+def _row_to_form(row) -> dict:
+    """数据库行 -> 接口要的 dict（保持 API 返回结构不变）"""
+    return {
+        "id": row["id"],
+        "type": row["type"],
+        "amount": row["amount"],
+        "date": row["date"],
+        "city": row["city"],
+        "invoice_no": row["invoice_no"],
+        "check": {
+            "ok": bool(row["check_ok"]),
+            "messages": json.loads(row["check_messages"]),
+        },
+        "status": row["status"],
+        "created_at": row["created_at"],
+    }
 
 
 def create_form(data: dict) -> dict:
     """创建报销单；发票号重复抛 DuplicateInvoiceError"""
-    forms = _load()
-    if any(f["invoice_no"] == data["invoice_no"] for f in forms):
-        raise DuplicateInvoiceError(data["invoice_no"])
-
-    form = {
-        "id": max((f["id"] for f in forms), default=0) + 1,
-        **data,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    }
-    forms.append(form)
-    _save(forms)
-    return form
+    check = data.get("check", {"ok": True, "messages": []})
+    conn = get_conn()
+    try:
+        try:
+            cur = conn.execute(
+                """INSERT INTO expense_forms
+                   (type, amount, date, city, invoice_no, check_ok, check_messages, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    data["type"],
+                    data["amount"],
+                    data["date"],
+                    data["city"],
+                    data["invoice_no"],
+                    1 if check["ok"] else 0,
+                    json.dumps(check["messages"], ensure_ascii=False),
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                ),
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            # UNIQUE 约束兜底：发票号重复
+            raise DuplicateInvoiceError(data["invoice_no"])
+        row = conn.execute(
+            "SELECT * FROM expense_forms WHERE id = ?", (cur.lastrowid,)
+        ).fetchone()
+        return _row_to_form(row)
+    finally:
+        conn.close()
 
 
 def list_forms() -> list:
-    return _load()
+    conn = get_conn()
+    try:
+        rows = conn.execute("SELECT * FROM expense_forms ORDER BY id").fetchall()
+        return [_row_to_form(r) for r in rows]
+    finally:
+        conn.close()

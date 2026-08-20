@@ -1,5 +1,6 @@
 """报销系统后端入口（Day6：POST /chat 走 Agent 循环 + 浏览器页面）"""
 import datetime
+from db import init_db
 from pathlib import Path
 from typing import Literal
 from rules.travel_rules import check_expense
@@ -12,6 +13,9 @@ from app.expense_store import DuplicateInvoiceError, create_form, list_forms
 from llm.agent import run_agent
 
 app = FastAPI(title="企业差旅报销 AI 助手")
+
+# 启动时建表 + 种子数据（幂等，重复启动不会重复插入）
+init_db()
 
 # 项目根目录（app/main.py 的上级），页面文件从这里取
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
