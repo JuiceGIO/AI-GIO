@@ -10,6 +10,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from app.expense_store import DuplicateInvoiceError, create_form, list_forms
+from app.approval_flow import IllegalTransitionError, transition
+from app.expense_store import DuplicateInvoiceError, create_form, get_form, list_forms
 from llm.agent import run_agent
 
 app = FastAPI(title="企业差旅报销 AI 助手")
@@ -34,6 +36,11 @@ class ExpenseFormRequest(BaseModel):
     city: str = Field(min_length=1)
     invoice_no: str = Field(min_length=1)
 
+class TransitionRequest(BaseModel):
+    """状态流转请求体：动作 + 可选审批意见"""
+
+    action: Literal["submit", "approve", "reject", "archive"]
+    comment: str = ""
 
 @app.get("/")
 def root():
@@ -66,3 +73,15 @@ def create_expense_form(req: ExpenseFormRequest):
 def get_expense_forms():
     """查看所有报销单（验证用）"""
     return list_forms()
+
+@app.post("/expense_forms/{form_id}/transition")
+def transition_form(form_id: int, req: TransitionRequest):
+    """审批状态流转；报销单不存在 404，非法跳转 409"""
+    form = get_form(form_id)
+    if form is None:
+        raise HTTPException(status_code=404, detail="报销单不存在")
+    try:
+        updated = transition(form, req.action, req.comment)
+    except IllegalTransitionError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    return updated
