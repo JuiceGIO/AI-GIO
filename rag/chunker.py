@@ -15,3 +15,15 @@ def chunk_markdown(path: str) -> list:
         if content:
             chunks.append({"title": title, "content": content})
     return chunks
+
+
+def chunk_fixed(text: str, size: int = 200, overlap: int = 50) -> list:
+    """固定长度切块：按字符数切窗口，带重叠防止切断语义"""
+    chunks = []
+    start = 0
+    while start < len(text):
+        piece = text[start : start + size]
+        if piece.strip():
+            chunks.append({"title": f"片段 {len(chunks) + 1}", "content": piece})
+        start += size - overlap
+    return chunks
