@@ -35,7 +35,8 @@ def rerank(question: str, candidates: list) -> list:
         return []
     lines = [f"问题：{question}", "", "候选片段："]
     for i, (chunk, _) in enumerate(candidates, 1):
-        snippet = chunk["content"].replace("\n", " ")[:120]
+        # 用完整片段：截断会丢关键信息（如「其他城市 300 元」在片段后半段）
+        snippet = chunk["content"].replace("\n", " ")
         lines.append(f"{i}. 【{chunk['source']}·{chunk['title']}】{snippet}")
     reply = chat(system=RERANK_PROMPT, user="\n".join(lines), stream=False)
 
