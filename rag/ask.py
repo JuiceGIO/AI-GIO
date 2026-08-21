@@ -4,12 +4,11 @@ from pathlib import Path
 
 from llm.client import chat
 from rag.chunker import chunk_markdown
-from rag.vector_store import VectorStore
+from rag.hybrid import HybridSearch 
 
 POLICY_FILE = Path(__file__).resolve().parent / "policy_docs" / "差旅管理制度.md"
 
-STORE = VectorStore()
-STORE.build_index(chunk_markdown(POLICY_FILE))
+STORE = HybridSearch(chunk_markdown(POLICY_FILE)) 
 
 SYSTEM_PROMPT = """你是企业差旅制度助手。只根据提供的制度内容回答，并标注来源章节。
 制度内容里没有的信息，明确说「制度中未查到」，不要编造。"""
