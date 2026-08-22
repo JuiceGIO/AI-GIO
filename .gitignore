@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .env
 data/*.db
+# Java（Day 22 起）
+target/
+.idea/
+*.iml
