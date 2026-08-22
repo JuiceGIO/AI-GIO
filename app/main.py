@@ -1,5 +1,6 @@
 """报销系统后端入口（Day6：POST /chat 走 Agent 循环 + 浏览器页面）"""
 import datetime
+import httpx
 from db import init_db
 from pathlib import Path
 from typing import Literal
@@ -18,6 +19,49 @@ app = FastAPI(title="企业差旅报销 AI 助手")
 
 # 启动时建表 + 种子数据（幂等，重复启动不会重复插入）
 init_db()
+
+# ===== Day 24：Python ↔ Java 互通（Java 业务服务在 127.0.0.1:8080）=====
+JAVA_BASE_URL = "http://127.0.0.1:8080"
+
+
+class JavaApproveRequest(BaseModel):
+    form_id: int
+    action: str
+    comment: str = ""
+
+
+@app.get("/java/ping")
+def java_ping():
+    with httpx.Client(base_url=JAVA_BASE_URL, timeout=5) as client:
+        return client.get("/ping").json()
+
+
+@app.get("/java/approvals")
+def java_approvals(status: str | None = None):
+    params = {"status": status} if status else None
+    with httpx.Client(base_url=JAVA_BASE_URL, timeout=5) as client:
+        resp = client.get("/approvals", params=params)
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail=resp.text)
+    return resp.json()
+
+
+@app.get("/java/overdue")
+def java_overdue(hours: int = 48):
+    with httpx.Client(base_url=JAVA_BASE_URL, timeout=5) as client:
+        resp = client.get("/overdue", params={"hours": hours})
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail=resp.text)
+    return resp.json()
+
+
+@app.post("/java/approve")
+def java_approve(req: JavaApproveRequest):
+    with httpx.Client(base_url=JAVA_BASE_URL, timeout=5) as client:
+        resp = client.post("/approve", json=req.model_dump())
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail=resp.json().get("detail", resp.text))
+    return resp.json()
 
 # 项目根目录（app/main.py 的上级），页面文件从这里取
 PROJECT_ROOT = Path(__file__).resolve().parents[1]

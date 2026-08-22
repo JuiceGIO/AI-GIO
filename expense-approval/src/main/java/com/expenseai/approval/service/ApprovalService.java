@@ -2,6 +2,8 @@ package com.expenseai.approval.service;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class ApprovalService {
 			"已归档", Map.of());
 
 	private static final List<String> PENDING_STATUSES = List.of("已提交", "部门审批", "财务审批");
+	private static final DateTimeFormatter CREATED_AT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private final ExpenseFormRepository repository;
 
@@ -40,6 +43,14 @@ public class ApprovalService {
 			return repository.listByStatuses(List.of(status.trim()));
 		}
 		return repository.listByStatuses(PENDING_STATUSES);
+	}
+
+	/** GET /overdue：列出超过 hours 小时仍未审批的待审批单（48h 超时提醒） */
+	public List<ExpenseForm> listOverdue(int hours) {
+		LocalDateTime deadline = LocalDateTime.now().minusHours(hours);
+		return repository.listByStatuses(PENDING_STATUSES).stream()
+				.filter(form -> isCreatedBefore(form, deadline))
+				.toList();
 	}
 
 	/** POST /approve：执行一次状态流转，approve/reject 写入审批留痕 */
@@ -59,5 +70,15 @@ public class ApprovalService {
 			repository.insertApproval(form.id(), req.action(), req.comment());
 		}
 		return repository.findById(form.id()).orElseThrow();
+	}
+
+	/** created_at 早于截止时间即视为超时；解析失败的单据不误报 */
+	private boolean isCreatedBefore(ExpenseForm form, LocalDateTime deadline) {
+		try {
+			LocalDateTime createdAt = LocalDateTime.parse(form.createdAt(), CREATED_AT_FORMAT);
+			return createdAt.isBefore(deadline);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }
