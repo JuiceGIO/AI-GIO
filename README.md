@@ -43,7 +43,7 @@
 - Java 21 + Spring Boot 4（expense-approval/，Maven Wrapper 免装 Maven）
 - 一键启动 start.bat（Day 25）
 
-## 架构图（第 4 周版）
+## 架构图
 
 ![ExpenseAI 架构图](docs/architecture-day26.png)
 
