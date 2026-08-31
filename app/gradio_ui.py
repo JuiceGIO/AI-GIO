@@ -1,7 +1,9 @@
-"""Day20：Gradio 界面
+"""Day20：Gradio 界面（升级4：支持容器内 0.0.0.0 绑定）
 员工端：上传发票自动抽取 + 提交报销 + 制度问答（带引用）
 审批端：待审批列表 + 通过/驳回
 """
+import os
+
 import gradio as gr
 
 from app.ui_handlers import (
@@ -78,4 +80,7 @@ with gr.Blocks(title="企业差旅报销 AI 助手") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(
+        server_name=os.getenv("GRADIO_SERVER_NAME", "0.0.0.0"),
+        server_port=int(os.getenv("GRADIO_SERVER_PORT", "7860")),
+    )

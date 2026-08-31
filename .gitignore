@@ -8,4 +8,5 @@ target/
 .idea/
 *.iml
 data/*.bak
+data/*.bak*
 start_this_pc.bat

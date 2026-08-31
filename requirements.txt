@@ -7,3 +7,16 @@ chromadb
 numpy
 tzdata
 gradio
+httpx
+
+# 升级1：PostgreSQL 数据层
+psycopg2-binary
+
+# 升级2：Redis 缓存
+redis
+
+# 升级3：RabbitMQ 延迟消息（Python 侧发布）
+pika
+
+# 升级5（可选加分）：MCP server
+fastmcp

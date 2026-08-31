@@ -38,10 +38,12 @@
 
 - Python 3.10 + FastAPI + uvicorn + Gradio
 - OpenAI SDK（兼容 DeepSeek，base_url 外置）
-- SQLite（四张表：员工/报销单/发票/审批记录）
+- SQLite（默认本地兜底）/ PostgreSQL（升级1：生产/联调，Flyway 迁移 + 索引）
+- Redis（升级2：差标规则 + 待办列表缓存，未安装时自动降级）
+- RabbitMQ（升级3：审批超时提醒延迟消息，保留定时兜底）
 - 手写 RAG（字符 bigram 向量 + BM25 + RRF 融合 + LLM 重排）
 - Java 21 + Spring Boot 4（expense-approval/，Maven Wrapper 免装 Maven）
-- 一键启动 start.bat（Day 25）
+- 一键启动 start.bat（Day 25）+ docker compose 一键编排（升级4）
 
 ## 架构图
 
@@ -163,3 +165,53 @@ GET  /overdue                    超时未审批单（?hours=48）
 ## 下一步（Day 27-28）
 
 3 分钟演示视频 + 简历 bullet（带数字）→ 面试 10 问复盘 + GitHub 公开。
+
+---
+
+## 升级路线落地（Day 29+，来自《项目升级路线-ExpenseAI.md》）
+
+> 目标：从「AI 应用项目」升级为「能工程化落地的 AI 后端项目」——
+> SQLite 单机 → PostgreSQL + Redis + RabbitMQ + Docker，同时保留手写 RAG/Agent 差异化。
+
+### 升级1：SQLite → PostgreSQL（数据层企业化）
+
+- 数据层按 `DB_BACKEND` 切换：`sqlite`（默认，本地照旧） / `postgres`（psycopg2 + 连接池，上限 10）
+- Java 端默认走 PostgreSQL，Flyway 自动执行 `expense-approval/src/main/resources/db/migration/`
+  （V1 建表 + V2 索引：approvals(expense_form_id)、approvals(created_at)、expense_forms(status)）
+- 本机没装 PG 时 Java 可临时用 sqlite 兜底：`.\mvnw.cmd spring-boot:run --spring.profiles.active=sqlite`
+- 存量数据搬迁：`.venv\Scripts\python.exe scripts\export_sqlite_to_postgres.py`
+
+### 升级2：Redis 缓存（性能层）
+
+- 差标规则启动预热进 Redis（`rules/travel_rules.py`），校验接口 cache-aside；发版变更调 `invalidate_rules_cache()`
+- 审批待办 `/java/approvals`、超时 `/java/overdue` 缓存 30s，任何审批写入（通过/驳回/流转）主动删 key
+- 运维端点：`POST /admin/cache/invalidate` 一键失效全部业务缓存
+- Redis 不可用自动降级为直查，业务不中断
+
+### 升级3：审批超时提醒 → RabbitMQ 延迟消息（工程亮点）
+
+- 进入待审批状态（已提交/部门审批/财务审批）时发送 48h 延迟消息（单条 TTL + 死信队列）
+- 消费端按状态幂等处理：仍待审批→告警，已审批/驳回/不存在→忽略
+- Python 与 Java 双侧发布（`mq.py` / `OverdueMessageProducer`），重复消息消费端幂等去重
+- `OverdueTask` 定时扫描保留为兜底，防消息丢失；Rabbit 不可用时自动降级
+
+### 升级4：Docker 容器化 + 一键编排（部署层）
+
+- 三服务各一个 Dockerfile（Java 多阶段构建，运行镜像只带 jar）
+- `docker compose up -d --build` 一键起 PostgreSQL + Redis + RabbitMQ + 三服务
+- `.env` 不入镜像（密钥由 compose 环境变量注入）；`start.bat` 本地入口保留
+
+### 升级5（可选加分）：MCP / Function Calling
+
+- `llm/tools.py` 提供 OpenAI function-calling 原生 schema（`TOOL_SCHEMAS` / `business_tool_schemas()`）
+- `mcp_server.py` 用 FastMCP 把报销/差标/问答三个业务工具暴露为标准 MCP server：
+  `.venv\Scripts\python.exe -m mcp_server`（默认 stdio；装好 `pip install fastmcp` 后使用）
+
+### 新增依赖
+
+```text
+psycopg2-binary   # 升级1
+redis             # 升级2
+pika              # 升级3
+fastmcp           # 升级5（可选）
+```

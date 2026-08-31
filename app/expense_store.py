@@ -1,9 +1,10 @@
-"""报销单存储层（Day12：换成 SQLite；接口层无需改动）"""
+"""报销单存储层（Day12：换成 SQLite；升级1：SQL 保持 ? 占位符，由 db 层适配 PG）"""
 import json
 import sqlite3
 from datetime import datetime
 
 from db import get_conn
+from mq import publish_delayed_overdue_check
 
 
 class DuplicateInvoiceError(Exception):
@@ -58,7 +59,11 @@ def create_form(data: dict) -> dict:
         row = conn.execute(
             "SELECT * FROM expense_forms WHERE id = ?", (cur.lastrowid,)
         ).fetchone()
-        return _row_to_form(row)
+        form = _row_to_form(row)
+        if status in ("已提交", "部门审批", "财务审批"):
+            # 直接以待审批状态创建时，同样发延迟提醒消息
+            publish_delayed_overdue_check(form["id"])
+        return form
     finally:
         conn.close()
 

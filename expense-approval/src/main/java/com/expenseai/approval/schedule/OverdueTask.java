@@ -31,9 +31,10 @@ public class OverdueTask {
 	public void remindOverdue() {
 		List<ExpenseForm> overdue = approvalService.listOverdue(reminderHours);
 		if (overdue.isEmpty()) {
-			log.info("定时检查：暂无超过 {} 小时未审批的单据", reminderHours);
+			// 升级3：正常路径由 MQ 延迟消息驱动，这里只在消息丢失时兜底，避免每 60s 刷日志
+			log.debug("定时兜底检查：暂无超过 {} 小时未审批的单据", reminderHours);
 		} else {
-			log.warn("定时检查：发现 {} 张超时未审批单据，编号 {}", overdue.size(),
+			log.warn("定时兜底检查：发现 {} 张超时未审批单据，编号 {}", overdue.size(),
 					overdue.stream().map(ExpenseForm::id).toList());
 		}
 	}

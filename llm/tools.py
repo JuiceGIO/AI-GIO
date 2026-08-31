@@ -1,4 +1,4 @@
-"""工具注册表（Day4：第一个工具 get_time）"""
+"""工具注册表（Day4：第一个工具 get_time；升级5：OpenAI function-calling schema）"""
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from app.business_tools import ask_policy, evaluate_expense, query_expenses
@@ -53,6 +53,61 @@ TOOLS = {
         ),
     },
 }
+
+
+# 升级5：三个业务工具的标准 function-calling schema（OpenAI 原生格式），
+# 可直接传给 chat.completions 的 tools= 参数；MCP server（mcp_server.py）由它定义工具。
+TOOL_SCHEMAS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "evaluate_expense",
+            "description": "校验一笔报销是否超出差旅标准。参数：type（交通/住宿/餐饮）、amount（金额数字）、city（城市名）。返回是否超标及超出金额。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "type": {"type": "string", "enum": ["交通", "住宿", "餐饮"], "description": "报销类型"},
+                    "amount": {"type": "number", "description": "报销金额（元）"},
+                    "city": {"type": "string", "description": "出差城市"},
+                },
+                "required": ["type", "amount", "city"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "query_expenses",
+            "description": "查询报销单。参数可选：type（交通/住宿/餐饮）、month（月份 YYYY-MM，如 2026-07）。返回笔数和总额。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "type": {"type": "string", "enum": ["交通", "住宿", "餐饮"], "description": "报销类型（可选）"},
+                    "month": {"type": "string", "description": "月份，格式 YYYY-MM（可选）"},
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "ask_policy",
+            "description": "回答企业差旅制度问题（住宿标准、交通标准、餐补、报销时限等）。参数：question（制度问题文本）。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string", "description": "制度问题文本"},
+                },
+                "required": ["question"],
+            },
+        },
+    },
+]
+
+
+def business_tool_schemas() -> list:
+    """给外部调用方（Agent 客户端 / 其他服务）用的工具 schema 列表"""
+    return TOOL_SCHEMAS
 
 
 def tool_list_text() -> str:

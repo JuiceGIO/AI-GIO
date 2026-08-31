@@ -1,0 +1,124 @@
+# 升级4：一键编排 —— docker compose up -d --build
+# 三服务（FastAPI/Gradio/Java）+ PostgreSQL + Redis + RabbitMQ
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: expenseai
+      POSTGRES_USER: expenseai
+      POSTGRES_PASSWORD: expenseai
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expenseai -d expenseai"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # 管理台
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      DB_BACKEND: postgres
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_DB: expenseai
+      PG_USER: expenseai
+      PG_PASSWORD: expenseai
+      REDIS_URL: redis://redis:6379/0
+      RABBIT_URL: amqp://guest:guest@rabbitmq:5672
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  gradio:
+    build:
+      context: .
+      dockerfile: Dockerfile.gradio
+    ports:
+      - "7860:7860"
+    environment:
+      DB_BACKEND: postgres
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_DB: expenseai
+      PG_USER: expenseai
+      PG_PASSWORD: expenseai
+      REDIS_URL: redis://redis:6379/0
+      RABBIT_URL: amqp://guest:guest@rabbitmq:5672
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+    depends_on:
+      fastapi:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:7860/')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  java:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+    ports:
+      - "8080:8080"
+    environment:
+      EXPENSE_DB_URL: jdbc:postgresql://postgres:5432/expenseai
+      EXPENSE_DB_USER: expenseai
+      EXPENSE_DB_PASSWORD: expenseai
+      EXPENSE_DB_POOL_MAX: "10"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/ping || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:

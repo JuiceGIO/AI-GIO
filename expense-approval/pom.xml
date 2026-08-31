@@ -12,7 +12,7 @@
 	<artifactId>expense-approval</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>expense-approval</name>
-	<description>ExpenseAI Java 业务层：审批状态机 + 定时提醒（Day 22 起步）</description>
+	<description>ExpenseAI Java 业务层：审批状态机 + 定时提醒（Day 22 起步；升级1/3：PostgreSQL + RabbitMQ）</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -38,6 +38,26 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
+		<!-- 升级3：RabbitMQ 延迟消息 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+		<!-- 升级1：PostgreSQL 驱动 + Flyway 迁移 -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+		<!-- sqlite 兜底 profile（application-sqlite.properties）继续用 -->
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>

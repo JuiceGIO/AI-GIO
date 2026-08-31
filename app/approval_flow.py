@@ -1,8 +1,9 @@
-"""审批状态机（Day13）：状态流转表 + 非法跳转拦截"""
+"""审批状态机（Day13）：状态流转表 + 非法跳转拦截；升级3：进入待审批时发延迟提醒消息"""
 from datetime import datetime
 
 from app.expense_store import get_form
 from db import get_conn
+from mq import publish_delayed_overdue_check
 
 # 状态机定义：当前状态 -> {动作: 下一个状态}
 FLOW = {
@@ -14,6 +15,9 @@ FLOW = {
     "已驳回": {"submit": "已提交"},
     "已归档": {},  # 终态：不允许任何动作
 }
+
+# 升级3：这几种状态属于「待审批」，进入时发送 48h 后检查的延迟消息
+PENDING_STATUSES = ("已提交", "部门审批", "财务审批")
 
 
 class IllegalTransitionError(Exception):
@@ -48,6 +52,9 @@ def transition(form: dict, action: str, comment: str = "") -> dict:
                 ),
             )
         conn.commit()
+        if next_state in PENDING_STATUSES:
+            # 进入待审批：发延迟消息，超时后由消费端检查（失败时定时兜底覆盖）
+            publish_delayed_overdue_check(form["id"])
     finally:
         conn.close()
     return get_form(form["id"])
