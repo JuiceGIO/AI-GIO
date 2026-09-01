@@ -8,6 +8,12 @@
 需要先安装依赖：pip install fastmcp
 工具定义与 llm/tools.py 的 TOOL_SCHEMAS 一一对应（MCP 自动用函数签名生成 schema）。
 """
+import sys
+from pathlib import Path
+
+# 保证从任意工作目录启动（如客户端直接调脚本路径）都能 import 项目模块
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 from fastmcp import FastMCP
 
 from app.business_tools import ask_policy, evaluate_expense, query_expenses
@@ -27,7 +33,7 @@ def query_expenses_tool(type: str | None = None, month: str | None = None) -> st
     return query_expenses(type=type, month=month)
 
 
-@mcp.tool()
+@mcp.tool(name="ask_policy")
 def ask_policy_tool(question: str) -> str:
     """回答企业差旅制度问题（住宿标准、交通标准、餐补、报销时限等）。参数：question（制度问题文本）。"""
     return ask_policy(question)
