@@ -9,14 +9,11 @@ tzdata
 gradio
 httpx
 
-# 升级1：PostgreSQL 数据层
+# Upgrade 1: PostgreSQL data layer
 psycopg2-binary
 
-# 升级2：Redis 缓存
+# Upgrade 2: Redis cache
 redis
 
-# 升级3：RabbitMQ 延迟消息（Python 侧发布）
+# Upgrade 3: RabbitMQ delayed message (Python publisher)
 pika
-
-# 升级5（可选加分）：MCP server
-fastmcp

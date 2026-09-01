@@ -161,7 +161,7 @@ class _Conn:
                 # 只对 INSERT 消费 RETURNING 行；SELECT/UPDATE 不预读，保证上层拿到完整结果
                 row = cur.fetchone()
                 if row is not None:
-                    lastrowid = row[0]
+                    lastrowid = row["id"]
             return _Cursor(cur, lastrowid)
         cur = self._raw.execute(sql, params or ())
         return _Cursor(cur, cur.lastrowid)
@@ -211,7 +211,8 @@ def _pg_pool_get():
     global _pg_pool
     if _pg_pool is None:
         import psycopg2
-        from psycopg2 import extras, pool
+        from psycopg2 import pool
+        from psycopg2.extras import RealDictCursor
 
         psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
         _pg_pool = pool.ThreadedConnectionPool(
@@ -222,9 +223,9 @@ def _pg_pool_get():
             dbname=os.getenv("PG_DB", "expenseai"),
             user=os.getenv("PG_USER", "expenseai"),
             password=os.getenv("PG_PASSWORD", "expenseai"),
+            cursor_factory=RealDictCursor,  # 行按列名取，等价 sqlite3.Row
         )
     raw = _pg_pool.getconn()
-    extras.register_dict_row(raw)  # 行按列名取，等价 sqlite3.Row
     return _Conn(raw, "postgres"), raw
 
 

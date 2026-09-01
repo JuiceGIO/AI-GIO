@@ -54,6 +54,8 @@ def publish_delayed_overdue_check(form_id: int, delay_ms: int = None) -> bool:
     返回是否成功发送（失败不影响主流程，由定时兜底覆盖）。"""
     delay_ms = delay_ms or OVERDUE_DELAY_MS
     try:
+        import pika  # 懒加载：本函数与 _connect 都用到 pika
+
         connection = _connect()
         try:
             channel = connection.channel()

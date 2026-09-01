@@ -1,6 +1,8 @@
 @echo off
 setlocal EnableDelayedExpansion
 cd /d "%~dp0"
+rem ---------- 0. Java shares the same SQLite file as Python (EXPENSE_DB_PATH) ----------
+set "EXPENSE_DB_PATH=%~dp0data\expenseai.db"
 
 echo ==========================================
 echo   ExpenseAI Ò»¼üÆô¶¯£¨Day 25£©

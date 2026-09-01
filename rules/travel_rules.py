@@ -39,13 +39,19 @@ def invalidate_rules_cache() -> None:
 def get_city_levels() -> dict:
     """城市分级：优先 Redis，未命中或不可用回落到模块常量"""
     cached = cache_get_json(KEY_CITY_LEVELS)
-    return cached if isinstance(cached, dict) else CITY_LEVELS
+    if isinstance(cached, dict):
+        return cached
+    cache_set(KEY_CITY_LEVELS, CITY_LEVELS, RULES_CACHE_TTL)  # cache-aside：读未命中回填
+    return CITY_LEVELS
 
 
 def get_standards() -> dict:
     """差标规则：优先 Redis，未命中或不可用回落到模块常量"""
     cached = cache_get_json(KEY_STANDARDS)
-    return cached if isinstance(cached, dict) else STANDARDS
+    if isinstance(cached, dict):
+        return cached
+    cache_set(KEY_STANDARDS, STANDARDS, RULES_CACHE_TTL)  # cache-aside：读未命中回填
+    return STANDARDS
 
 
 def city_level(city: str) -> str:

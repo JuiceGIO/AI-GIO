@@ -1,0 +1,4 @@
+# 升级5（可选加分）：MCP server（容器镜像不安装，本地用 MCP 时执行：
+#   .venv\Scripts\pip install -r requirements-mcp.txt
+#   然后 .venv\Scripts\python.exe -m mcp_server）
+fastmcp

@@ -29,6 +29,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
+    hostname: rabbitmq
     ports:
       - "5672:5672"     # AMQP
       - "15672:15672"   # 管理台
@@ -42,6 +43,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.fastapi
+      args:
+        HTTP_PROXY: http://host.docker.internal:7897
+        HTTPS_PROXY: http://host.docker.internal:7897
+        NO_PROXY: localhost,127.0.0.1
     ports:
       - "8000:8000"
     environment:
@@ -53,6 +58,7 @@ services:
       PG_PASSWORD: expenseai
       REDIS_URL: redis://redis:6379/0
       RABBIT_URL: amqp://guest:guest@rabbitmq:5672
+      JAVA_BASE_URL: http://java:8080
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-}
@@ -71,6 +77,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.gradio
+      args:
+        HTTP_PROXY: http://host.docker.internal:7897
+        HTTPS_PROXY: http://host.docker.internal:7897
+        NO_PROXY: localhost,127.0.0.1
     ports:
       - "7860:7860"
     environment:
@@ -98,9 +108,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.java
+      additional_contexts:
+        m2repo: "C:/Users/Tom/.m2/repository"
+      args:
+        HTTP_PROXY: http://host.docker.internal:7897
+        HTTPS_PROXY: http://host.docker.internal:7897
+        NO_PROXY: localhost,127.0.0.1
     ports:
       - "8080:8080"
     environment:
+      SPRING_PROFILES_ACTIVE: postgres
       EXPENSE_DB_URL: jdbc:postgresql://postgres:5432/expenseai
       EXPENSE_DB_USER: expenseai
       EXPENSE_DB_PASSWORD: expenseai
@@ -115,7 +132,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/ping || exit 1"]
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
       interval: 10s
       timeout: 3s
       retries: 5
