@@ -90,7 +90,7 @@ rag/                 制度问答（切块/检索/重排） + 制度文档
 eval/                golden set + 评测脚本 + 对比报告
 static/              FastAPI 页面
 expense-approval/    Java 业务层（Spring Boot + Maven Wrapper）
-docs/                评测报告、验收记录、架构图、日志
+docs/                评测报告、验收记录、架构图
 start.bat            一键启动三服务
 db.py                SQLite 数据库层
 .env                 密钥配置（不入库）
