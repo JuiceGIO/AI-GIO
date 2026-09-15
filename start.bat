@@ -5,7 +5,7 @@ rem ---------- 0. Java shares the same SQLite file as Python (EXPENSE_DB_PATH) -
 set "EXPENSE_DB_PATH=%~dp0data\expenseai.db"
 
 echo ==========================================
-echo   ExpenseAI 一键启动（Day 25）
+echo ExpenseAI 一键启动
 echo   FastAPI 8000 / Gradio 7860 / Java 8080
 echo ==========================================
 echo.

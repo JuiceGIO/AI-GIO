@@ -1,4 +1,4 @@
-"""工具注册表（Day4：第一个工具 get_time；升级5：OpenAI function-calling schema）"""
+"""工具注册表（第一个工具 get_time；升级5：OpenAI function-calling schema）"""
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from app.business_tools import ask_policy, evaluate_expense, query_expenses

@@ -1,4 +1,4 @@
-"""制度文档切块（Day11：按章节切，Day15 再对比其他策略）"""
+"""制度文档切块（按章节切，再对比其他策略）"""
 import re
 from pathlib import Path
 

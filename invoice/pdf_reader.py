@@ -1,4 +1,4 @@
-"""发票 PDF 文本提取（Day8）"""
+"""发票 PDF 文本提取"""
 from pypdf import PdfReader
 
 

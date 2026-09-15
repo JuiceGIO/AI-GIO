@@ -1,4 +1,4 @@
-"""golden set 质检（Day18）：字段完整性 + 关键词自洽 + 章节覆盖"""
+"""golden set 质检：字段完整性 + 关键词自洽 + 章节覆盖"""
 import json
 import sys
 from pathlib import Path

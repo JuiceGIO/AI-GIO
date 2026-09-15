@@ -1,4 +1,4 @@
-"""审批状态机（Day13）：状态流转表 + 非法跳转拦截；升级3：进入待审批时发延迟提醒消息"""
+"""审批状态机：状态流转表 + 非法跳转拦截；升级3：进入待审批时发延迟提醒消息"""
 from datetime import datetime
 
 from app.expense_store import get_form

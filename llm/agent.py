@@ -1,4 +1,4 @@
-"""手写 ReAct 循环（Day4）：思考 -> 行动 -> 观察 -> 继续，直到回答"""
+"""手写 ReAct 循环：思考 -> 行动 -> 观察 -> 继续，直到回答"""
 import ast
 import json
 import re
@@ -148,7 +148,7 @@ def run_agent(user_message: str, max_steps: int = 5, verbose: bool = True):
 
 
 if __name__ == "__main__":
-    print("Day4 ReAct Agent（输入 exit / 退出 结束）")
+    print("ReAct Agent（输入 exit / 退出 结束）")
     while True:
         user_input = input("\n你: ").strip()
         if user_input.lower() in ("exit", "quit", "退出"):

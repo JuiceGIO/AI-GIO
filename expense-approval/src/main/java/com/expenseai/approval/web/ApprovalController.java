@@ -12,7 +12,7 @@ import com.expenseai.approval.model.ApproveRequest;
 import com.expenseai.approval.model.ExpenseForm;
 import com.expenseai.approval.service.ApprovalService;
 
-/** Day 23 审批接口：GET /approvals + POST /approve */
+/** 审批接口：GET /approvals + POST /approve */
 @RestController
 public class ApprovalController {
 

@@ -1,4 +1,4 @@
-"""差旅标准规则表（Day10：配置化——改规则不动代码；升级2：Redis 缓存读多写少规则）"""
+"""差旅标准规则表（配置化——改规则不动代码；升级2：Redis 缓存读多写少规则）"""
 
 from cache import cache_delete, cache_get_json, cache_set
 

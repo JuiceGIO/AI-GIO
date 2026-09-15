@@ -1,4 +1,4 @@
-"""业务工具（Day14）：差标校验 / 报销查询 / 制度问答——给 Agent 用的手和脚"""
+"""业务工具：差标校验 / 报销查询 / 制度问答——给 Agent 用的手和脚"""
 from app.expense_store import list_forms
 from rag.ask import ask as rag_ask
 from rules.travel_rules import check_expense

@@ -16,7 +16,7 @@ import com.expenseai.approval.model.ExpenseForm;
 import com.expenseai.approval.repo.ExpenseFormRepository;
 
 /**
- * 审批状态机（Day 23）：与 Python 端 app/approval_flow.py 的 FLOW 完全一致；
+ * 审批状态机：与 Python 端 app/approval_flow.py 的 FLOW 完全一致；
  * 升级3：状态进入待审批时发 RabbitMQ 延迟提醒消息（事务提交后发送）。
  * 草稿 -> 已提交 -> 部门审批 -> 财务审批 -> 已打款 -> 已归档；驳回后可重新提交。
  */

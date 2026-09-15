@@ -1,13 +1,24 @@
 .venv/
 __pycache__/
 *.pyc
+
+# 密钥与环境
 .env
+.env.local
+
+# 数据库与备份
 data/*.db
+data/*.bak
+data/*.bak*
+
 # Java
 target/
 .idea/
 *.iml
-data/*.bak
-data/*.bak*
+
+# 本机脚本与工具
 start_this_pc.bat
+.tools/
 wheelhouse/
+logs/
+*.log

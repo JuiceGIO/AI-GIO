@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.expenseai.approval.model.ExpenseForm;
 import com.expenseai.approval.service.ApprovalService;
 
-/** Day 24：定时扫描超过 48 小时未审批的单据并提醒 */
+/** 定时扫描超过 48 小时未审批的单据并提醒 */
 @Component
 public class OverdueTask {
 

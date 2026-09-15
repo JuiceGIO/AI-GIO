@@ -1,4 +1,4 @@
-"""Day20 界面业务逻辑（与 gradio 解耦，便于单独测试）"""
+"""界面业务逻辑（与 gradio 解耦，便于单独测试）"""
 from app.approval_flow import IllegalTransitionError, transition
 from app.expense_store import DuplicateInvoiceError, create_form, get_form, list_forms
 from db import init_db

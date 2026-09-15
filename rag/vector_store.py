@@ -1,4 +1,4 @@
-"""手写向量检索库（Day11：numpy 版，原理同 Chroma）"""
+"""手写向量检索库（numpy 版，原理同 Chroma）"""
 import numpy as np
 
 from rag import embedding

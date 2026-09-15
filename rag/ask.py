@@ -1,4 +1,4 @@
-"""制度问答（Day17 生产级三件套：重排 + 引用 + 拒答）"""
+"""制度问答（生产级三件套：重排 + 引用 + 拒答）"""
 import sys
 from pathlib import Path
 

@@ -1,4 +1,4 @@
-"""混合检索（Day16）：向量 + BM25 + RRF 融合"""
+"""混合检索：向量 + BM25 + RRF 融合"""
 from rag.bm25 import BM25
 from rag.vector_store import VectorStore
 

@@ -1,4 +1,4 @@
-"""LLM 重排器（Day17）：对召回片段打分重排 + 相关度门控"""
+"""LLM 重排器：对召回片段打分重排 + 相关度门控"""
 import json
 
 from llm.client import chat

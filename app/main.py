@@ -1,4 +1,4 @@
-"""报销系统后端入口（Day6：POST /chat 走 Agent 循环 + 浏览器页面；升级2：Redis 缓存；升级4：容器内互通地址可配置）"""
+"""报销系统后端入口（POST /chat 走 Agent 循环 + 浏览器页面；升级2：Redis 缓存；升级4：容器内互通地址可配置）"""
 import datetime
 import httpx
 import os
@@ -22,7 +22,7 @@ app = FastAPI(title="企业差旅报销 AI 助手")
 init_db()
 load_rules_to_cache()
 
-# ===== Day 24：Python ↔ Java 互通（Java 业务服务在 127.0.0.1:8080）=====
+# ===== Python ↔ Java 互通（Java 业务服务在 127.0.0.1:8080）=====
 # 升级4：docker-compose 里注入 http://java:8080，本地默认 127.0.0.1:8080
 JAVA_BASE_URL = os.getenv("JAVA_BASE_URL", "http://127.0.0.1:8080")
 

@@ -1,4 +1,4 @@
-"""Day15：切块策略对比（章节 vs 固定长度）
+"""切块策略对比（章节 vs 固定长度）
 
 5 个问题分别用两套切块检索，记录命中差异，选出更适合制度文档的策略。
 """
@@ -40,7 +40,7 @@ def save_report(chapter_rows, fixed_rows, chapter_hits, fixed_hits):
     out = Path(__file__).resolve().parent.parent / "eval" / "chunking_report.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     lines = [
-        "# 切块策略对比报告（Day15）",
+        "# 切块策略对比报告",
         "",
         "| 问题 | 章节切块命中 | 固定长度命中 |",
         "|---|---|---|",

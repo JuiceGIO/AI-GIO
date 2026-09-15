@@ -12,7 +12,7 @@
 	<artifactId>expense-approval</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>expense-approval</name>
-	<description>ExpenseAI Java 业务层：审批状态机 + 定时提醒（Day 22 起步；升级1/3：PostgreSQL + RabbitMQ）</description>
+	<description>ExpenseAI Java 业务层：审批状态机 + 定时提醒（起步；升级1/3：PostgreSQL + RabbitMQ）</description>
 	<url/>
 	<licenses>
 		<license/>

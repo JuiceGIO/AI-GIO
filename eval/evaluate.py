@@ -1,4 +1,4 @@
-"""Day19 评测：纯向量 vs 混合检索 vs 混合+重排（Recall@k）+ 回答质量
+"""评测：纯向量 vs 混合检索 vs 混合+重排（Recall@k）+ 回答质量
 
 指标说明（自动近似）：
 - Recall@k：正确答案所在块是否出现在检索结果前 k 名
@@ -85,7 +85,7 @@ def main():
     print(f"faithfulness（含关键词率）={faith:.0%}")
     print(f"answer relevancy（有效回答率）={relev:.0%}")
 
-    report = f"""# 评测报告（Day19）
+    report = f"""# 评测报告
 
 - 日期：{datetime.now():%Y-%m-%d}
 - 语料：{len(DOC_FILES)} 篇（差旅管理制度 + 差旅报销补充说明），{len(chunks)} 块

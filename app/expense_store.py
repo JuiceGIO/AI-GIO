@@ -1,4 +1,4 @@
-"""报销单存储层（Day12：换成 SQLite；升级1：SQL 保持 ? 占位符，由 db 层适配 PG）"""
+"""报销单存储层（换成 SQLite；升级1：SQL 保持 ? 占位符，由 db 层适配 PG）"""
 import json
 import sqlite3
 from datetime import datetime

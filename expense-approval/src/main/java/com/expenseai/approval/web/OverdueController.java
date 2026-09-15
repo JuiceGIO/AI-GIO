@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.expenseai.approval.model.ExpenseForm;
 import com.expenseai.approval.service.ApprovalService;
 
-/** Day 24：超时未审批查询接口 */
+/** 超时未审批查询接口 */
 @RestController
 public class OverdueController {
 

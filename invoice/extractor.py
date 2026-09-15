@@ -1,4 +1,4 @@
-"""用 LLM 从发票文本抽取结构化字段（Day8）"""
+"""用 LLM 从发票文本抽取结构化字段"""
 import json
 import sys
 from pathlib import Path
@@ -41,7 +41,7 @@ def extract_fields(text: str) -> dict:
 
 
 def run(pdf_path: str) -> dict:
-    """完整流程：PDF -> 文本 -> 字段 -> 存 SQLite（Day12 替换文件存储）"""
+    """完整流程：PDF -> 文本 -> 字段 -> 存 SQLite（替换文件存储）"""
     from invoice.pdf_reader import extract_text
 
     text = extract_text(pdf_path)

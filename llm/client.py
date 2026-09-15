@@ -1,4 +1,4 @@
-"""大模型调用封装（Day3：流式 + 超时 + 重试 + 日志；Day4：支持多轮消息）"""
+"""大模型调用封装（流式 + 超时 + 重试 + 日志；支持多轮消息）"""
 import os
 import time
 from pathlib import Path
@@ -20,7 +20,7 @@ MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 
 def chat_messages(messages: list, stream: bool = False) -> str:
-    """按完整消息列表调用模型（Day4 ReAct 循环用，能带工具观察结果）"""
+    """按完整消息列表调用模型（ReAct 循环用，能带工具观察结果）"""
 
     start = time.perf_counter()  # 计时开始
 
