@@ -11,7 +11,7 @@ passages, cited answers and relevance-based refusal — measured on a 41-case go
 
 > 企业差旅报销系统 + AI 制度问答助手（生产级 RAG）——报销业务闭环 + 基础 RAG + 评测对比 + Java 审批业务层。
 
-## 项目简介（一句话）
+## 项目简介
 
 员工提交差旅报销单、上传电子发票 → AI 自动抽取发票字段、校验差旅标准 → 多级审批（部门 → 财务）→ 打款归档；员工随时用自然语言问差旅制度，制度问答用生产级 RAG（混合检索 + 重排 + 引用 + 拒答 + 评测对比）。
 
