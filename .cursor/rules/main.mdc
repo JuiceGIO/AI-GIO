@@ -1,0 +1,12 @@
+---
+description: 项目约束入口（分层约定、禁止事项、常用命令、必读文件）
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+本项目的唯一约束来源是仓库根目录的 `AGENTS.md`，动手前先读它。最容易犯的三条：
+
+1. 不绕过分层：检索只走 `rag/ask.py`，工具 schema 只在 `llm/tools.py` 定义，状态流转只走 `db.py` 或 Java `/approve`。
+2. 不动评测口径与兜底：`eval/golden_set.json`、`eval/evaluate.py` 的指标定义、发票号双保险与三层确定性兜底不得随手改。
+3. 重排不允许截断候选片段（历史上 120 字截断导致 Recall@1 下降）。
