@@ -169,6 +169,8 @@ GET  /overdue                    超时未审批单（?hours=48）
 
 ## 评测与验收
 
+> 检索实验脚本：`eval/embedding_compare.py`（向量化选型 bigram vs bge-small-zh）、`eval/rrf_k_sweep.py`（RRF k 扫描）、`eval/pgvector_compare.py` 与 `eval/pgvector_scale_test.py`（三方检索对比 + 规模测试）；实测结论见 `eval/README.md`。
+
 ```powershell
 .venv\Scripts\python.exe -m eval.check_golden_set   # 金标准质检
 .venv\Scripts\python.exe -m eval.evaluate           # 评测对比（约 1-2 分钟）
