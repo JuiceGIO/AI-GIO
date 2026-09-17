@@ -2,7 +2,7 @@
 指标：Recall@1 / Recall@3 / NDCG@10 / MRR@10 / P95 查询延迟 / 维度 / 索引大小。
 同时给出「纯向量」与「向量 + BM25 + RRF」两种口径。
 用法：
-  python embedding_compare.py --repo "G:\\python project\\AI-GIO" [--models BAAI/bge-small-zh-v1.5] [--with-base] [--out <json>]
+  python embedding_compare.py --repo <仓库路径> [--models BAAI/bge-small-zh-v1.5] [--with-base] [--out <json>]
 """
 
 from __future__ import annotations

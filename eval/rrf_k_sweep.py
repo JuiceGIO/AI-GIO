@@ -1,6 +1,6 @@
 """RRF k 值扫描：在 golden set 上对比不同 k 的 Recall@1 / Recall@3 / MRR@10 / NDCG@10。
 只用到手写向量 + BM25 + RRF（不需要 API Key、不联网）。
-用法：python rrf_k_sweep.py --repo "G:\\python project\\AI-GIO"
+用法：python rrf_k_sweep.py --repo <仓库路径>
 """
 
 from __future__ import annotations
