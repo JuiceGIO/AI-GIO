@@ -1,0 +1,62 @@
+{
+  "model": "deepseek-chat",
+  "invoice": "电子发票（增值税普通发票）\n发票代码：044001911211  发票号码：18820066\n开票日期：2026-08-29\n购买方名称：深圳市某某科技有限公司\n价税合计（大写）：壹仟贰佰捌拾元整   （小写）￥1280.00\n货物或应税劳务名称：住宿服务",
+  "results": [
+    {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "json_ok": 5,
+      "samples": 5,
+      "all_fields_consistent": true,
+      "avg_ms": 895.0,
+      "example": {
+        "amount": 1280.0,
+        "date": "2026-08-29",
+        "invoice_no": "18820066",
+        "title": "深圳市某某科技有限公司"
+      }
+    },
+    {
+      "temperature": 0.7,
+      "top_p": 1.0,
+      "json_ok": 5,
+      "samples": 5,
+      "all_fields_consistent": true,
+      "avg_ms": 783.0,
+      "example": {
+        "amount": 1280.0,
+        "date": "2026-08-29",
+        "invoice_no": "18820066",
+        "title": "深圳市某某科技有限公司"
+      }
+    },
+    {
+      "temperature": 1.2,
+      "top_p": 1.0,
+      "json_ok": 5,
+      "samples": 5,
+      "all_fields_consistent": true,
+      "avg_ms": 755.0,
+      "example": {
+        "amount": 1280.0,
+        "date": "2026-08-29",
+        "invoice_no": "18820066",
+        "title": "深圳市某某科技有限公司"
+      }
+    },
+    {
+      "temperature": 0.7,
+      "top_p": 0.5,
+      "json_ok": 5,
+      "samples": 5,
+      "all_fields_consistent": true,
+      "avg_ms": 788.0,
+      "example": {
+        "amount": 1280.0,
+        "date": "2026-08-29",
+        "invoice_no": "18820066",
+        "title": "深圳市某某科技有限公司"
+      }
+    }
+  ]
+}

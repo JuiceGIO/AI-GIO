@@ -1,0 +1,27 @@
+{
+  "chunks": 17,
+  "queries": 41,
+  "rows": [
+    {
+      "tokenizer": "字符 bigram（现状）",
+      "vocab": 930,
+      "query_coverage": 0.568,
+      "avg_query_tokens": 10.0,
+      "avg_chunk_tokens": 84.8
+    },
+    {
+      "tokenizer": "单字 unigram",
+      "vocab": 359,
+      "query_coverage": 0.9287,
+      "avg_query_tokens": 11.0,
+      "avg_chunk_tokens": 82.1
+    },
+    {
+      "tokenizer": "WordPiece（bge 分词器）",
+      "vocab": 365,
+      "query_coverage": 0.9395,
+      "avg_query_tokens": 12.9,
+      "avg_chunk_tokens": 82.8
+    }
+  ]
+}

@@ -67,3 +67,29 @@ docker run -d --name agentservice-pgvector -e POSTGRES_PASSWORD=postgres -p 5433
 结论：**HNSW 的拐点在 1000 块附近**。但同一量级下 numpy 内存暴力检索仍然最快 —— pgvector 的价值是**持久化、事务、WHERE 过滤（多租户/权限）、并发访问**，而不是这个量级的速度；另外 3000 块离线编码要 108s、入库 86s，批量重建必须放离线流程。
 
 > 说明：规模测试用"真实块 + 编号变体"合成语料，只用于测延迟与索引成本，召回指标在合成语料上无意义，故不报。
+
+## 5. 分词对比实验（手写 bigram vs 单字 vs WordPiece）
+
+```powershell
+.venv\Scripts\python.exe eval\tokenizer_compare.py --repo . --onnx-dir models\bge-small-zh-onnx
+```
+
+| 分词方式 | 语料词表 | 查询 token 覆盖率 | 查询平均 token |
+|---|---|---|---|
+| 字符 bigram（原实现） | 930 | **56.8%** | 10.0 |
+| 单字 unigram | 359 | 92.9% | 11.0 |
+| WordPiece（bge 分词器） | 365 | **94.0%** | 12.9 |
+
+结论：手写 bigram 有近一半查询特征在语料词表里不存在（跨词边界组合），这正是它 Recall@1 停在 92.7% 的原因之一；中文 BERT 词表以单字为主，所以 WordPiece 与单字覆盖率接近。
+
+## 6. 采样参数实验（temperature / top_p）
+
+```powershell
+.venv\Scripts\python.exe eval\sampling_experiment.py --repo . --samples 5   # 结构化抽取（需要 .env 里的 Key）
+.venv\Scripts\python.exe eval\sampling_diversity.py  --repo . --samples 10  # 开放式生成多样性
+```
+
+- 结构化抽取（发票字段，4 组配置 × 5 次）：**20 次输出完全一致**，JSON 5/5 可解析 → 强约束任务上温度几乎无影响
+- 开放式生成（同一 prompt 采样 8 次）：温度 0 → **1/8 唯一**，温度 1.5 → **7/8 唯一**
+
+结论：参数作用取决于任务；抽取链路的稳定性靠 schema + 校验 + 降级（三层兜底），不靠调温度。

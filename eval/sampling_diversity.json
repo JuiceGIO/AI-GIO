@@ -1,0 +1,36 @@
+{
+  "model": "deepseek-chat",
+  "prompt": "给「企业差旅报销审批流程」起一个简短标题（不超过 12 个字），只输出标题本身，不要标点和解释。",
+  "results": [
+    {
+      "temperature": 0.0,
+      "samples": 10,
+      "unique": 1,
+      "dup_rate": 0.9,
+      "avg_ms": 623,
+      "examples": [
+        "企业差旅报销审批流程"
+      ]
+    },
+    {
+      "temperature": 0.7,
+      "samples": 10,
+      "unique": 1,
+      "dup_rate": 0.9,
+      "avg_ms": 667,
+      "examples": [
+        "企业差旅报销审批流程"
+      ]
+    },
+    {
+      "temperature": 1.2,
+      "samples": 10,
+      "unique": 1,
+      "dup_rate": 0.9,
+      "avg_ms": 713,
+      "examples": [
+        "企业差旅报销审批流程"
+      ]
+    }
+  ]
+}
