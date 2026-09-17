@@ -22,3 +22,6 @@ start_this_pc.bat
 wheelhouse/
 logs/
 *.log
+
+# 本地模型文件（体积大，用 eval/fetch_onnx_model.py 下载）
+models/
