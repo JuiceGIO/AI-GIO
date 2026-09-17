@@ -45,6 +45,7 @@ passages, cited answers and relevance-based refusal — measured on a 41-case go
 | answer relevancy | - | 90~100% |
 
 > 口径说明：41 条 golden（覆盖制度文档 17 个章节）；faithfulness / answer relevancy 为关键词与拒答行为的自动代理指标，完整报告见 `docs/eval.md` 与 `eval/chunking_report.md`。
+> **口径边界**：Recall@1 92.7% → 95.1% 指**混合检索 + 完整片段重排**这条链路（bigram 向量）；**Recall@3 100% 也是 bigram 口径**，换成 bge-small-zh 后为 97.6%（Top-1 更强但更激进，把一条挤出了 top3）；embedding 换 bge 的那次实验单独用 **NDCG@10 0.967 → 0.971** 表述——两条链路的 Recall@1 数值相同是巧合，面试时先说清是哪次实验。
 
 ## 技术栈
 
@@ -171,6 +172,14 @@ GET  /overdue                    超时未审批单（?hours=48）
 
 > 检索实验脚本：`eval/embedding_compare.py`（向量化选型 bigram vs bge-small-zh）、`eval/rrf_k_sweep.py`（RRF k 扫描）、`eval/pgvector_compare.py` 与 `eval/pgvector_scale_test.py`（三方检索对比 + 规模测试）；实测结论见 `eval/README.md`。
 
+**检索实验结果（2026-09 完成）**
+
+- 向量化选型：手写 bigram（930 维）→ bge-small-zh（512 维），纯向量 **NDCG@10 0.967 → 0.971**；bge 官方 query 指令实测有效（+2.4pt），int8 量化掉点故用 fp32
+- RRF k 值：k=60（原论文经验值）；实测 k 从 1 到 1000 指标完全一致（语料 17 块），并给出 k 真正敏感的三个前提（大语料 / 大候选池 / 单路召回的正确答案）
+- 三方检索对比：numpy / pgvector 顺序扫描 / pgvector HNSW 在 17 块语料下 **Recall@1 均 95.1%**；规模测试显示顺序扫描 1.55→8.20ms 线性变差、**HNSW 拐点在 1000 块附近**（稳定 1.7–1.9ms）；同量级下 numpy 反而最快，pgvector 的价值在持久化、事务、过滤与并发
+- 复现命令与原始结果：见 eval/README.md 与 eval/*.json
+
+
 ```powershell
 .venv\Scripts\python.exe -m eval.check_golden_set   # 金标准质检
 .venv\Scripts\python.exe -m eval.evaluate           # 评测对比（约 1-2 分钟）
@@ -194,7 +203,6 @@ GET  /overdue                    超时未审批单（?hours=48）
 ## 后续计划
 
 - 评测进 CI：golden set 与检索指标接入 GitHub Actions，指标劣化即 fail
-- 三方检索对比：手写 numpy 向量 vs pgvector（可选 LightRAG 图检索），出 Recall@k / NDCG@k 与延迟对比
 - 演示视频与在线 Demo
 
 ---
